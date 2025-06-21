@@ -55,8 +55,8 @@ export default async function handler(req, res) {
     await scrapeJioSaavnHome();
   }
 
-  if (cachedData) {
-    res.status(200).json(cachedData);
+  if (cachedData && cachedData.homeView?.modules) {
+    res.status(200).json(cachedData.homeView.modules);
   } else {
     res.status(500).json({ error: 'Failed to fetch homepage data' });
   }
