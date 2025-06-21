@@ -1,11 +1,6 @@
-import express from 'express';
 import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
-import cors from 'cors';
 import vm from 'node:vm';
-
-const app = express();
-app.use(cors());
 
 let cachedData = null;
 let lastFetched = 0;
@@ -46,18 +41,16 @@ const scrapeJioSaavnHome = async () => {
   }
 };
 
-app.get('/api/homepage', async (req, res) => {
+// ✅ Vercel handler function
+export default async function handler(req, res) {
   const now = Date.now();
   if (!cachedData || now - lastFetched > CACHE_DURATION) {
     await scrapeJioSaavnHome();
   }
 
   if (cachedData) {
-    res.json(cachedData);
+    res.status(200).json(cachedData);
   } else {
     res.status(500).json({ error: 'Failed to fetch homepage data' });
   }
-});
-
-// Export handler for Vercel
-export default app;
+}
