@@ -1,0 +1,14 @@
+{
+  "name": "jiosaavn-homepage-scraper-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "start": "node api/homepage.js"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.12",
+    "node-fetch": "^3.4.1"
+  }
+}
