@@ -4,9 +4,10 @@ import vm from 'node:vm';
 
 let cachedData = null;
 let lastFetched = 0;
+let lastFetchedLang = null;
 const CACHE_DURATION = 1000 * 60 * 60 * 3; // 3 hours
 
-const scrapeJioSaavnHome = async () => {
+const scrapeJioSaavnHome = async (lang = 'hindi') => {
   console.log('Scraping JioSaavn homepage...');
 
   const response = await fetch('https://www.jiosaavn.com/', {
@@ -14,6 +15,7 @@ const scrapeJioSaavnHome = async () => {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' +
                     '(KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+      'Cookie': `L=${lang}`
     },
   });
 
@@ -36,6 +38,7 @@ const scrapeJioSaavnHome = async () => {
 
       cachedData = context.window.__INITIAL_DATA__;
       lastFetched = Date.now();
+      lastFetchedLang = lang;
       console.log(cachedData);
       console.log('✅ Homepage data scraped and cached.');
     } catch (err) {
@@ -50,9 +53,13 @@ scrapeJioSaavnHome();
 
 // ✅ Vercel handler function
 export default async function handler(req, res) {
+  const lang = req.query.lang || 'hindi';
   const now = Date.now();
-  if (!cachedData || now - lastFetched > CACHE_DURATION) {
-    await scrapeJioSaavnHome();
+  if (lastFetchedLang !== lang){
+    await scrapeJioSaavnHome(lang);
+  }
+  else if (!cachedData || now - lastFetched > CACHE_DURATION) {
+    await scrapeJioSaavnHome(lang);
   }
 
   if (cachedData && cachedData.homeView?.modules) {
